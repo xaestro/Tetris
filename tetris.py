@@ -1,159 +1,103 @@
+"""
+Tetris in Python/Pygame
+
+Just trying out my hand at making a complete tetris game in Python
+"""
+
+__author__ = "Tony Yang <xaestro>"
+__date__   = "November 19, 2012"
+
 import sys, pygame, traceback, random
-from pieces import *
-
-SIZE = WIDTH, HEIGHT = 200, 600
-BLACK = 0, 0, 0
-GREY = 128, 128, 128
-
-GAME_WIDTH = 10
-GAME_HEIGHT = 30
-TOP_BUFFER = 4
-
-EDGE_LENGTH = WIDTH // GAME_WIDTH
-
-TIMER_EVENT = pygame.USEREVENT + 1
+from Constants import *
+from GameBoard import *
 
 class Tetris:
 
     def __init__(self):
-        self.speed = [2, 2]
 
         self.END_GAME = 0
         self.RUN_GAME = 1
         self.game_state = self.RUN_GAME
 
-        self.game_piece = None
-        self.filled_blocks = [[False for i in range(GAME_WIDTH)] \
-                                     for j in range(GAME_HEIGHT + TOP_BUFFER)]
         pygame.init()
+        self.game_timer = pygame.time.Clock()
+        self.game_time = 0
         self.screen = pygame.display.set_mode(SIZE)
+        self.board = GameBoard()
+        self.font = pygame.font.Font(pygame.font.match_font('arialms'), 20)
+        self.scoreboard = pygame.Surface((200, 200))
 
-    def spawn_piece(self):
-        num = random.randrange(7)
-        if num == 0:
-            piece = Long_Piece
-        elif num == 1:
-            piece = T_Piece
-        elif num == 2:
-            piece = LRight_Piece
-        elif num == 3:
-            piece = LLeft_Piece
-        elif num == 4:
-            piece = ZRight_Piece
-        elif num == 5:
-            piece = ZLeft_Piece
-        elif num == 6:
-            piece = Square_Piece
-        self.game_piece = piece([GAME_WIDTH // 2 - 2, GAME_HEIGHT - 1])
-        
-    def check_collision(self, block_list):
-        for block in block_list:
-            if self.filled_blocks[block[1]][block[0]]:
-                return True
-        return False
-
-    def fill_blocks(self):
-        for n in self.game_piece.get_blocks():
-            self.filled_blocks[n[1]][n[0]] = True
-            if n[1] >= GAME_HEIGHT:
-                for j in range(GAME_HEIGHT + TOP_BUFFER):
-                    for i in range(GAME_WIDTH):
-                        self.filled_blocks[j][i] = False
-                break
-        starting_row = -1
-        rows_to_clear = 0
-        for y in range(GAME_HEIGHT):
-            clear_row = True
-            for x in range(GAME_WIDTH):
-                clear_row = clear_row and self.filled_blocks[y][x]
-            if clear_row:
-                if starting_row == -1:
-                    starting_row = y
-                rows_to_clear += 1
-        for rows in range(starting_row, GAME_HEIGHT):
-            for x in range(GAME_WIDTH):
-                self.filled_blocks[rows][x] = self.filled_blocks[rows + rows_to_clear][x]
-            
-        self.spawn_piece()
-    
-    def update_pieces(self, direction):
-        self.game_piece.move(direction)
-        if direction[1] == -1:
-            if self.game_piece.y_min() < 0 or \
-                self.check_collision(self.game_piece.get_blocks()):
-                    self.game_piece.move([0, 1])
-                    self.fill_blocks()
-                    
-        else:    
-            if self.game_piece.x_min() < 0 or \
-               self.game_piece.x_max() >= GAME_WIDTH or \
-               self.check_collision(self.game_piece.get_blocks()):
-                self.game_piece.move([direction[0] * -1, 0])
+        self.move_timer = 500
                 
+    def key_handler(self, key):
+        if key == pygame.K_LEFT:
+            self.board.update_pieces([-1, 0])
+        if key == pygame.K_RIGHT:
+            self.board.update_pieces([1, 0])
+        if key == pygame.K_DOWN:
+            self.board.update_pieces([0, -1])
+        if key == pygame.K_SPACE:
+            #redundant code, fix this up later
+            while self.board.game_piece.y_min() >= 0 and \
+            not self.board.check_collision():
+                self.board.game_piece.move([0, -1])
+            self.board.game_piece.move([0, 1])
+            self.board.fill_blocks()
+        if key == pygame.K_z:
+            self.board.rotate_game_piece(False)
+        if key == pygame.K_x or \
+           key == pygame.K_UP:
+            self.board.rotate_game_piece(True)
+        if key == pygame.K_w:
+            self.board.spawn_piece()
+
+
 
     def update(self):
-        self.spawn_piece()
-
-        pygame.time.set_timer(TIMER_EVENT, 500)
+        self.board.spawn_piece()
+        
+        self.move_timer = 500
         
         while 1:
+            elapsed_time = self.game_timer.tick(60)
+            
             for event in pygame.event.get():
                 if event.type == pygame.QUIT or \
-                   (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                   (event.type == pygame.KEYDOWN and event.key == pygame.K_q):
                     pygame.quit()
                     sys.exit(0)
-                if event.type == TIMER_EVENT:
-                    self.update_pieces([0, -1])
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT:
-                        self.update_pieces([-1, 0])
-                    if event.key == pygame.K_RIGHT:
-                        self.update_pieces([1, 0])
-                    if event.key == pygame.K_DOWN:
-                        self.update_pieces([0, -1])
-                    if event.key == pygame.K_SPACE:
-                        #redundant code, fix this up later
-                        while self.game_piece.y_min() >= 0 and \
-                        not self.check_collision(self.game_piece.get_blocks()):
-                            self.game_piece.move([0, -1])
-                        self.game_piece.move([0, 1])
-                        self.fill_blocks()
-                    if event.key == pygame.K_z:
-                        self.game_piece.rotate_left()
-                        if self.game_piece.y_min() < 0:
-                            self.game_piece.move([0, y_min()])
-                        if self.game_piece.x_min() < 0 or \
-                           self.game_piece.x_max() > GAME_WIDTH - 1:
-                            self.game_piece.rotate_right()
-                    if event.key == pygame.K_x or \
-                       event.key == pygame.K_UP:
-                        self.game_piece.rotate_right()
-                        if self.game_piece.y_min() < 0:
-                            self.game_piece.move([0, y_min()])
-                        if self.game_piece.x_min() < 0 or \
-                           self.game_piece.x_max() > GAME_WIDTH - 1:
-                            self.game_piece.rotate_left()
-                    if event.key == pygame.K_w:
-                        self.spawn_piece()
+                    self.key_handler(event.key)
+
+            self.game_time += elapsed_time / 1000.0
+
+            self.move_timer -= elapsed_time
+            if self.move_timer < 0:
+                self.board.update_pieces([0, -1])
+                self.move_timer = 500
+                
+            
             self.draw()
 
     def draw(self):
-        self.screen.fill(BLACK)
-        
-        for block in self.game_piece.get_blocks():
-            self.screen.fill(self.game_piece.color,\
-                             pygame.Rect((block[0] * EDGE_LENGTH,\
-                             (GAME_HEIGHT - block[1] - 1) * EDGE_LENGTH),\
-                             (EDGE_LENGTH, EDGE_LENGTH)))
+        self.screen.fill(GREY)
 
-        for y in range(len(self.filled_blocks)):
-            for x in range(len(self.filled_blocks[y])):
-                if self.filled_blocks[y][x]:
-                    self.screen.fill(GREY,\
-                        pygame.Rect((x * EDGE_LENGTH,\
-                        (GAME_HEIGHT - y - 1) * EDGE_LENGTH),\
-                        (EDGE_LENGTH, EDGE_LENGTH)))
-                    
+        for y in range(GAME_HEIGHT):
+            for x in range(GAME_WIDTH):
+                self.screen.fill(self.board.filled_blocks[y][x],\
+                    pygame.Rect((BOARD_X + x * EDGE_LENGTH,\
+                    BOARD_Y + (GAME_HEIGHT - y - 1) * EDGE_LENGTH),\
+                    (EDGE_LENGTH, EDGE_LENGTH)))
+                
+        for block in self.board.game_piece.get_blocks():
+            if block[1] < GAME_HEIGHT:
+                self.screen.fill(self.board.game_piece.color,\
+                         pygame.Rect((BOARD_X + block[0] * EDGE_LENGTH,\
+                         BOARD_Y + (GAME_HEIGHT - block[1] - 1) * EDGE_LENGTH),\
+                         (EDGE_LENGTH, EDGE_LENGTH)))
+
+        self.screen.blit(self.font.render(str(self.game_time), True, (255, 255, 255)), (0, 0)) 
+        
         pygame.display.flip()
 
 if __name__ == '__main__':
