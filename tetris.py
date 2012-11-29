@@ -19,6 +19,11 @@ class Tetris:
         self.RUN_GAME = 1
         self.game_state = self.RUN_GAME
 
+        self.drop_piece = False
+        self.move_left = False
+        self.move_right = False
+        self.move_sideways_timer = 0
+
         pygame.init()
         self.game_timer = pygame.time.Clock()
         self.game_time = 0
@@ -29,13 +34,21 @@ class Tetris:
 
         self.move_timer = 500
                 
-    def key_handler(self, key):
+    def key_down_handler(self, key):
         if key == pygame.K_LEFT:
             self.board.update_pieces([-1, 0])
+            self.move_sideways_timer = 150
+            self.move_left = True
+            self.move_right = False
         if key == pygame.K_RIGHT:
             self.board.update_pieces([1, 0])
+            self.move_sideways_timer = 150
+            self.move_right = True
+            self.move_left = False
         if key == pygame.K_DOWN:
-            self.board.update_pieces([0, -1])
+            #self.board.update_pieces([0, -1])
+            self.move_timer = 100
+            self.drop_piece = True
         if key == pygame.K_SPACE:
             #redundant code, fix this up later
             while self.board.game_piece.y_min() >= 0 and \
@@ -51,12 +64,20 @@ class Tetris:
         if key == pygame.K_w:
             self.board.spawn_piece()
 
-
+    def key_up_handler(self, key):
+        if key == pygame.K_DOWN:
+            self.move_timer = 500
+            self.drop_piece = False
+        if key == pygame.K_LEFT:
+            self.move_left = False
+        if key == pygame.K_RIGHT:
+            self.move_right = False
 
     def update(self):
         self.board.spawn_piece()
         
         self.move_timer = 500
+        
         
         while 1:
             elapsed_time = self.game_timer.tick(60)
@@ -67,14 +88,29 @@ class Tetris:
                     pygame.quit()
                     sys.exit(0)
                 if event.type == pygame.KEYDOWN:
-                    self.key_handler(event.key)
+                    self.key_down_handler(event.key)
+                if event.type == pygame.KEYUP:
+                    self.key_up_handler(event.key)
 
             self.game_time += elapsed_time / 1000.0
 
             self.move_timer -= elapsed_time
             if self.move_timer < 0:
                 self.board.update_pieces([0, -1])
-                self.move_timer = 500
+                if self.drop_piece:
+                    self.move_timer = 100
+                else:
+                    self.move_timer = 500
+            if self.move_sideways_timer > 0:
+                self.move_sideways_timer -= elapsed_time
+            else:
+                if self.move_left:
+                    self.board.update_pieces([-1, 0])
+                    self.move_sideways_timer = 150
+                if self.move_right:
+                    self.board.update_pieces([1, 0])
+                    self.move_sideways_timer = 150
+                
                 
             
             self.draw()
