@@ -64,7 +64,7 @@ class GameBoard:
             
         self.spawn_piece()
 
-    def rotate_game_piece(self, right):
+    def rotate_piece(self, right):
         if right:
             self.game_piece.rotate_right()
         else:
@@ -95,6 +95,13 @@ class GameBoard:
                 self.game_piece.rotate_left()
             else:
                 self.game_piece.rotate_right()
+
+    def drop_piece(self):
+        while self.game_piece.y_min() >= 0 and \
+        not self.check_collision():
+            self.game_piece.move([0, -1])
+        self.game_piece.move([0, 1])
+        self.fill_blocks()
          
     def update_pieces(self, direction):
         self.game_piece.move(direction)

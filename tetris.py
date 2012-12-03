@@ -5,11 +5,10 @@ Just trying out my hand at making a complete tetris game in Python
 """
 
 __author__ = "Tony Yang <xaestro>"
-__date__   = "November 19, 2012"
+__date__   = "November 29, 2012"
 
-import sys, pygame, traceback, random
+import sys, pygame, traceback, random, GameBoard
 from Constants import *
-from GameBoard import *
 
 class Tetris:
 
@@ -20,15 +19,14 @@ class Tetris:
         self.game_state = self.RUN_GAME
 
         self.drop_piece = False
-        self.move_left = False
-        self.move_right = False
+        self.move_dir = 0
         self.move_sideways_timer = 0
 
         pygame.init()
         self.game_timer = pygame.time.Clock()
         self.game_time = 0
         self.screen = pygame.display.set_mode(SIZE)
-        self.board = GameBoard()
+        self.board = GameBoard.GameBoard()
         self.font = pygame.font.Font(pygame.font.match_font('arialms'), 20)
         self.scoreboard = pygame.Surface((200, 200))
 
@@ -38,29 +36,21 @@ class Tetris:
         if key == pygame.K_LEFT:
             self.board.update_pieces([-1, 0])
             self.move_sideways_timer = 150
-            self.move_left = True
-            self.move_right = False
+            self.move_dir = -1
         if key == pygame.K_RIGHT:
             self.board.update_pieces([1, 0])
             self.move_sideways_timer = 150
-            self.move_right = True
-            self.move_left = False
+            self.move_dir = 1
         if key == pygame.K_DOWN:
-            #self.board.update_pieces([0, -1])
             self.move_timer = 100
             self.drop_piece = True
         if key == pygame.K_SPACE:
-            #redundant code, fix this up later
-            while self.board.game_piece.y_min() >= 0 and \
-            not self.board.check_collision():
-                self.board.game_piece.move([0, -1])
-            self.board.game_piece.move([0, 1])
-            self.board.fill_blocks()
+            self.board.drop_piece()
         if key == pygame.K_z:
-            self.board.rotate_game_piece(False)
+            self.board.rotate_piece(False)
         if key == pygame.K_x or \
            key == pygame.K_UP:
-            self.board.rotate_game_piece(True)
+            self.board.rotate_piece(True)
         if key == pygame.K_w:
             self.board.spawn_piece()
 
@@ -68,17 +58,15 @@ class Tetris:
         if key == pygame.K_DOWN:
             self.move_timer = 500
             self.drop_piece = False
-        if key == pygame.K_LEFT:
-            self.move_left = False
-        if key == pygame.K_RIGHT:
-            self.move_right = False
+        if key == pygame.K_LEFT and \
+           self.move_dir == -1 or \
+           key == pygame.K_RIGHT and \
+           self.move_dir == 1:
+            self.move_dir = 0
 
     def update(self):
         self.board.spawn_piece()
-        
-        self.move_timer = 500
-        
-        
+
         while 1:
             elapsed_time = self.game_timer.tick(60)
             
@@ -104,11 +92,8 @@ class Tetris:
             if self.move_sideways_timer > 0:
                 self.move_sideways_timer -= elapsed_time
             else:
-                if self.move_left:
-                    self.board.update_pieces([-1, 0])
-                    self.move_sideways_timer = 150
-                if self.move_right:
-                    self.board.update_pieces([1, 0])
+                if self.move_dir != 0:
+                    self.board.update_pieces([self.move_dir, 0])
                     self.move_sideways_timer = 150
                 
                 
@@ -141,7 +126,6 @@ if __name__ == '__main__':
     try:
         mainGame.update()
     except:
-        sys.stderr.write(traceback.print_exc())
         if sys.exc_info()[0] != SystemExit:
+            sys.stderr.write(traceback.print_exc())
             pygame.quit()
-            sys.exit(0)
