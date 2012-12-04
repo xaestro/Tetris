@@ -64,6 +64,8 @@ class GameBoard:
             
         self.spawn_piece()
 
+        return line_drop
+
     def rotate_piece(self, right):
         if right:
             self.game_piece.rotate_right()
@@ -101,7 +103,7 @@ class GameBoard:
         not self.check_collision():
             self.game_piece.move([0, -1])
         self.game_piece.move([0, 1])
-        self.fill_blocks()
+        return self.fill_blocks()
          
     def update_pieces(self, direction):
         self.game_piece.move(direction)
@@ -109,13 +111,14 @@ class GameBoard:
             if self.game_piece.y_min() < 0 or \
                 self.check_collision():
                     self.game_piece.move([0, 1])
-                    self.fill_blocks()
+                    return self.fill_blocks()
                     
         else:    
             if self.game_piece.x_min() < 0 or \
                self.game_piece.x_max() >= GAME_WIDTH or \
                self.check_collision():
                 self.game_piece.move([direction[0] * -1, 0])
+        return 0
 
     def fill_test(self):
         for y in range(6):
