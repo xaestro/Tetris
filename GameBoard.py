@@ -8,34 +8,31 @@ class GameBoard:
         self.game_piece = None
         self.filled_blocks = [[BLACK for i in range(GAME_WIDTH)] \
                                      for j in range(GAME_HEIGHT + TOP_BUFFER)]
+        self.swappable = True
+        self.stored_piece = None
         
+    def swap_piece(self):
+        if not self.swappable:
+            return
+        trade_piece_id = -1
+        if self.stored_piece != None:
+            trade_piece_id = self.stored_piece.piece_id
+        self.stored_piece = PIECES[self.game_piece.piece_id]()
+        self.spawn_piece(trade_piece_id)
+        self.swappable = False
     
-    def spawn_piece(self):
-        num = random.randrange(7)
-        if num == 0:
-            piece = Long_Piece
-        elif num == 1:
-            piece = T_Piece
-        elif num == 2:
-            piece = LRight_Piece
-        elif num == 3:
-            piece = LLeft_Piece
-        elif num == 4:
-            piece = ZRight_Piece
-        elif num == 5:
-            piece = ZLeft_Piece
-        elif num == 6:
-            piece = Square_Piece
-        self.game_piece = piece([GAME_WIDTH // 2 - 2, GAME_HEIGHT - 1])
+    def spawn_piece(self, num=-1):
+        if num == -1:
+            num = random.randrange(7)
+            self.swappable = True
+        self.game_piece = PIECES[num]([GAME_WIDTH // 2 - 2, GAME_HEIGHT - 1])
 
     def check_collision(self):
         for block in self.game_piece.get_blocks():
             if block[1] < 0 or \
                block[0] > GAME_WIDTH - 1 or \
                block[0] < 0 or \
-               self.filled_blocks[block[1]][block[0]] != BLACK:
-                #print str(block[0]), str(block[1])
-                return True
+               self.filled_blocks[block[1]][block[0]] != BLACK:                return True
         return False
     
     def fill_blocks(self):

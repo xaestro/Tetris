@@ -17,17 +17,21 @@ class GameScreen:
         self.score = 0
         self.score_to_update = 0
 
+        self.stored_piece = None
+
     def key_down_handler(self, key):
         if key == pygame.K_LEFT:
             self.score_to_update += self.board.update_pieces([-1, 0])
-            self.move_sideways_timer = 100
+            self.move_sideways_timer = 125
             self.move_dir = -1
         if key == pygame.K_RIGHT:
             self.score_to_update += self.board.update_pieces([1, 0])
-            self.move_sideways_timer = 100
+            self.move_sideways_timer = 125
             self.move_dir = 1
         if key == pygame.K_DOWN:
-            self.move_timer = 100
+            self.score_to_update += self.board.update_pieces([0, -1])
+            if 500 - 40 * self.level > 75:
+                self.move_timer = 75
             self.drop_piece = True
         if key == pygame.K_SPACE:
             self.score_to_update += self.board.drop_piece()
@@ -38,16 +42,19 @@ class GameScreen:
             self.board.rotate_piece(True)
         if key == pygame.K_w:
             self.board.spawn_piece()
+        if key == pygame.K_LSHIFT:
+            self.board.swap_piece()
 
     def key_up_handler(self, key):
         if key == pygame.K_DOWN:
-            self.move_timer = 500
+            self.move_timer = 500 - self.move_timer
             self.drop_piece = False
         if key == pygame.K_LEFT and \
            self.move_dir == -1 or \
            key == pygame.K_RIGHT and \
            self.move_dir == 1:
             self.move_dir = 0
+            self.move_sideways_timer = 0
 
     def new_level(self):
         self.level += 1
@@ -59,15 +66,15 @@ class GameScreen:
         if self.move_timer < 0:
             self.score_to_update += self.board.update_pieces([0, -1])
             if self.drop_piece:
-                self.move_timer = 50
+                self.move_timer = 75
             else:
-                self.move_timer = 500
+                self.move_timer = 500 - 40 * self.level
         if self.move_sideways_timer > 0:
             self.move_sideways_timer -= elapsed_time
         else:
             if self.move_dir != 0:
                 self.score_to_update += self.board.update_pieces([self.move_dir, 0])
-                self.move_sideways_timer = 150
+                self.move_sideways_timer = 75
         self.score += self.score_to_update
         self.lines_left -= self.score_to_update
         self.score_to_update = 0
@@ -87,6 +94,16 @@ class GameScreen:
                 screen.fill(self.board.game_piece.color,\
                          pygame.Rect((BOARD_X + block[0] * EDGE_LENGTH,\
                          BOARD_Y + (GAME_HEIGHT - block[1] - 1) * EDGE_LENGTH),\
+                         (EDGE_LENGTH, EDGE_LENGTH)))
+
+        screen.fill(BLACK, pygame.Rect((BOARD_X + (GAME_WIDTH + 1) * EDGE_LENGTH,\
+             BOARD_Y ), (6 * EDGE_LENGTH, 6 * EDGE_LENGTH)))
+
+        if self.board.stored_piece != None:
+            for block in self.board.stored_piece.get_blocks():
+                screen.fill(self.board.stored_piece.color,\
+                         pygame.Rect((BOARD_X + (GAME_WIDTH + 4 - self.board.stored_piece.edge_length / 2.0 + block[0]) * EDGE_LENGTH,\
+                         BOARD_Y + (2 + self.board.stored_piece.edge_length / 2.0 - block[1]) * EDGE_LENGTH),\
                          (EDGE_LENGTH, EDGE_LENGTH)))
                 
         screen.blit(font.render("Score: " + str(self.score), True, (255, 255, 255)), (0, 22))

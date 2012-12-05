@@ -60,7 +60,8 @@ class Pieces(object):
         return filled                
 
 class Long_Piece(Pieces):
-    def __init__(self, position):
+    def __init__(self, position=(0,0)):
+        self.piece_id = 0
         self.position = position
         self.color = 100, 150, 255
         self.fill = [[0, 1, 0, 0],\
@@ -70,52 +71,58 @@ class Long_Piece(Pieces):
         Pieces.__init__(self)
 
 class T_Piece(Pieces):
-    def __init__(self, position):
+    def __init__(self, position=(0,0)):
+        self.piece_id = 1
         self.position = position
         self.color = 255, 0, 255
-        self.fill = [[0, 1, 0],\
-                     [0, 1, 1],\
+        self.fill = [[0, 0, 0],\
+                     [1, 1, 1],\
                      [0, 1, 0]]
         Pieces.__init__(self)
 
 class LRight_Piece(Pieces):
-    def __init__(self, position):
+    def __init__(self, position=(0,0)):
+        self.piece_id = 2
         self.position = position
         self.color = 255, 200, 100
-        self.fill = [[0, 1, 0],\
-                     [0, 1, 0],\
-                     [0, 1, 1]]
-        Pieces.__init__(self)
-
-class LLeft_Piece(Pieces):
-    def __init__(self, position):
-        self.position = position
-        self.color = 0, 0, 255
-        self.fill = [[0, 1, 0],\
-                     [0, 1, 0],\
-                     [1, 1, 0]]
-        Pieces.__init__(self)
-
-class ZRight_Piece(Pieces):
-    def __init__(self, position):
-        self.position = position
-        self.color = 150, 255, 150
-        self.fill = [[0, 1, 0],\
-                     [0, 1, 1],\
-                     [0, 0, 1]]
-        Pieces.__init__(self)
-
-class ZLeft_Piece(Pieces):
-    def __init__(self, position):
-        self.position = position
-        self.color = 255, 0, 0
-        self.fill = [[0, 1, 0],\
-                     [1, 1, 0],\
+        self.fill = [[0, 0, 0],\
+                     [1, 1, 1],\
                      [1, 0, 0]]
         Pieces.__init__(self)
 
+class LLeft_Piece(Pieces):
+    def __init__(self, position=(0,0)):
+        self.piece_id = 3
+        self.position = position
+        self.color = 0, 0, 255
+        self.fill = [[0, 0, 0],\
+                     [1, 1, 1],\
+                     [0, 0, 1]]
+        Pieces.__init__(self)
+
+class ZRight_Piece(Pieces):
+    def __init__(self, position=(0,0)):
+        self.piece_id = 4
+        self.position = position
+        self.color = 150, 255, 150
+        self.fill = [[0, 0, 0],\
+                     [0, 1, 1],\
+                     [1, 1, 0]]
+        Pieces.__init__(self)
+
+class ZLeft_Piece(Pieces):
+    def __init__(self, position=(0,0)):
+        self.piece_id = 5
+        self.position = position
+        self.color = 255, 0, 0
+        self.fill = [[0, 0, 0],\
+                     [1, 1, 0],\
+                     [0, 1, 1]]
+        Pieces.__init__(self)
+
 class Square_Piece(Pieces):
-    def __init__(self, position):
+    def __init__(self, position=(0,0)):
+        self.piece_id = 6
         self.position = position
         self.color = 255, 255, 0
         self.fill = [[1, 1],\

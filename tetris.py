@@ -37,6 +37,8 @@ class Tetris:
                    (event.type == pygame.KEYDOWN and event.key == pygame.K_q):
                     pygame.quit()
                     sys.exit(0)
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                    self.current_screen = GameScreen.GameScreen()
                 if event.type == pygame.KEYDOWN:
                     self.current_screen.key_down_handler(event.key)
                 if event.type == pygame.KEYUP:
