@@ -7,7 +7,7 @@ Just trying out my hand at making a complete tetris game in Python
 __author__ = "Tony Yang <xaestro>"
 __date__   = "November 29, 2012"
 
-import sys, pygame, traceback, GameScreen
+import sys, pygame, traceback, GameScreen, MenuScreen
 from Constants import *
 
 class Tetris:
@@ -25,7 +25,7 @@ class Tetris:
         self.font = pygame.font.Font(pygame.font.match_font('arialms'), 20)
         
                 
-        self.current_screen = GameScreen.GameScreen()
+        self.current_screen = MenuScreen.MenuScreen()
 
     def update(self):
 
@@ -37,13 +37,14 @@ class Tetris:
                    (event.type == pygame.KEYDOWN and event.key == pygame.K_q):
                     pygame.quit()
                     sys.exit(0)
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
-                    self.current_screen = GameScreen.GameScreen()
                 if event.type == pygame.KEYDOWN:
                     self.current_screen.key_down_handler(event.key)
                 if event.type == pygame.KEYUP:
                     self.current_screen.key_up_handler(event.key)
 
+            if self.current_screen.next_screen != None:
+                self.current_screen = self.current_screen.next_screen()
+            
             self.game_time += elapsed_time / 1000.0
 
             self.current_screen.update(elapsed_time)

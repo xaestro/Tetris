@@ -1,4 +1,4 @@
-import pygame, random, GameBoard
+import pygame, random, GameBoard, MenuScreen
 from Constants import *
 
 class GameScreen:
@@ -18,6 +18,7 @@ class GameScreen:
         self.score_to_update = 0
 
         self.stored_piece = None
+        self.next_screen = None
 
     def key_down_handler(self, key):
         if key == pygame.K_LEFT:
@@ -44,6 +45,10 @@ class GameScreen:
             self.board.spawn_piece()
         if key == pygame.K_LSHIFT:
             self.board.swap_piece()
+        if key == pygame.K_r:
+            self.next_screen = GameScreen
+        if key == pygame.K_ESCAPE:
+            self.next_screen = MenuScreen.MenuScreen
 
     def key_up_handler(self, key):
         if key == pygame.K_DOWN:
