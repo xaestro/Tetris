@@ -17,6 +17,15 @@ class GameScreen:
         self.score = 0
         self.score_to_update = 0
 
+        self.instructions = []
+        self.instructions.append("Left/Right: Move sideways")
+        self.instructions.append("Down: Increase drop speed")
+        self.instructions.append("Up: Rotate Clockwise")
+        self.instructions.append("Z: Rotate Counterclockwise")
+        self.instructions.append("Space: Instant Drop")
+        self.instructions.append("Shift: Store Current Piece")
+        self.instructions.append("Escape: Exit to Menu")
+
         self.stored_piece = None
         self.next_screen = None
 
@@ -114,5 +123,9 @@ class GameScreen:
         screen.blit(font.render("Score: " + str(self.score), True, (255, 255, 255)), (0, 22))
         screen.blit(font.render("Level: " + str(self.level), True, (255, 255, 255)), (0, 44))
         screen.blit(font.render("Lines: " + str(self.lines_left), True, (255, 255, 255)), (0, 66))
+        i = 0
+        for text in self.instructions:
+            screen.blit(font.render(text, True, (255, 255, 255)), (0, HEIGHT / 2 + 22 * i))
+            i += 1
 
         

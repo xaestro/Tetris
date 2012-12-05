@@ -22,7 +22,7 @@ class Tetris:
         self.game_timer = pygame.time.Clock()
         self.game_time = 0
         self.screen = pygame.display.set_mode(SIZE)
-        self.font = pygame.font.Font(pygame.font.match_font('arialms'), 20)
+        self.font = pygame.font.Font(pygame.font.match_font('arial'), 20)
         
                 
         self.current_screen = MenuScreen.MenuScreen()
