@@ -1,7 +1,8 @@
-import pygame, random, GameBoard, MenuScreen
+import pygame, random, GameBoard
 from Constants import *
+from Screen import *
 
-class GameScreen:
+class GameScreen(Screen):
     def __init__(self):
         self.drop_piece = False
         self.move_dir = 0
@@ -27,7 +28,8 @@ class GameScreen:
         self.instructions.append("Escape: Exit to Menu")
 
         self.stored_piece = None
-        self.next_screen = None
+
+        Screen.__init__(self)
 
     def key_down_handler(self, key):
         if key == pygame.K_LEFT:
@@ -45,6 +47,7 @@ class GameScreen:
             self.drop_piece = True
         if key == pygame.K_SPACE:
             self.score_to_update += self.board.drop_piece()
+            self.game.sound_manager.swoosh_sound.play()
         if key == pygame.K_z:
             self.board.rotate_piece(False)
         if key == pygame.K_x or \
@@ -54,10 +57,8 @@ class GameScreen:
             self.board.spawn_piece()
         if key == pygame.K_LSHIFT:
             self.board.swap_piece()
-        if key == pygame.K_r:
-            self.next_screen = GameScreen
         if key == pygame.K_ESCAPE:
-            self.next_screen = MenuScreen.MenuScreen
+            self.add_screen("PauseScreen")
 
     def key_up_handler(self, key):
         if key == pygame.K_DOWN:
