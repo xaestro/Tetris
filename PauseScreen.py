@@ -15,7 +15,7 @@ class PauseScreen(Screen):
         self.selected_option = 0
 
         self.background = pygame.Surface(SIZE, pygame.SRCALPHA)
-        self.background.fill((255, 255, 255, 50))
+        self.background.fill((0, 0, 0, 200))
         
         Screen.__init__(self)
 

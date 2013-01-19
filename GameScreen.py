@@ -47,7 +47,7 @@ class GameScreen(Screen):
             self.drop_piece = True
         if key == pygame.K_SPACE:
             self.score_to_update += self.board.drop_piece()
-            self.game.sound_manager.swoosh_sound.play()
+            #self.game.sound_manager.swoosh_sound.play()
         if key == pygame.K_z:
             self.board.rotate_piece(False)
         if key == pygame.K_x or \

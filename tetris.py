@@ -35,14 +35,11 @@ class Tetris:
             elapsed_time = self.game_timer.tick(60)
             
             for event in pygame.event.get():
-                if event.type == pygame.QUIT or \
-                   (event.type == pygame.KEYDOWN and event.key == pygame.K_q):
+                if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit(0)
                 if event.type == pygame.KEYDOWN:
                     self.screen_manager.key_down_handler(event.key)
-                    if event.key == pygame.K_s:
-                        self.whoosh_sound.play()
                 if event.type == pygame.KEYUP:
                     self.screen_manager.key_up_handler(event.key)
                     
@@ -58,7 +55,7 @@ class Tetris:
 
         self.screen_manager.draw()
         
-        self.screen.blit(self.font.render(str(self.game_time), True, (255, 255, 255)), (0, 0)) 
+        self.screen.blit(self.font.render(str(self.game_time), True, (255, 255, 255)), (0, HEIGHT - 22)) 
         
         pygame.display.flip()
 
